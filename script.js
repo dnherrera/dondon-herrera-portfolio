@@ -1,64 +1,70 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Ensure DOM is fully loaded before running script
-  document.addEventListener("scroll", () => {
-    const navbar = document.getElementById("navbar");
-    const scrollPosition = window.scrollY; // Current scroll position
+  const navbar = document.getElementById("navbar");
+  const allSections = document.querySelectorAll("section");
+  const allNavLinks = document.querySelectorAll('.nav-menu ul li a, .navbar ul li a');
 
-    // Show the navbar when scrolled down 100px or more
-    if (scrollPosition > 100) {
-      navbar.style.top = "10px"; // Bring navbar into view
-    } else {
-      navbar.style.top = "-100px"; // Hide navbar above the viewport
-    }
-  });
-
-  // Function to remove highlighting from all links
   function removeHighlight() {
-    const allLinks = document.querySelectorAll('.nav-menu ul li a, .navbar ul li a');
-    allLinks.forEach(link => link.classList.remove('active-link'));
+    allNavLinks.forEach(function (link) {
+      link.classList.remove('active-link');
+    });
   }
 
-  // Function to handle link highlighting
   function highlightLink(href) {
-    removeHighlight(); // Remove existing highlights
-
-    // Highlight links only if not on landing page
-    if (href !== "#landing-page-section") {
-      const matchingLinks = document.querySelectorAll(`a[href="${href}"]`);
-      matchingLinks.forEach(link => link.classList.add('active-link'));
-    }
+    removeHighlight(); 
+    const matchingLinks = document.querySelectorAll(`a[href="${href}"]`);
+    matchingLinks.forEach(function (link) {
+      // Add highlight to the clicked link
+      link.classList.add('active-link');  
+    });
   }
 
-  // Add click event listener to all nav-menu and navbar links
-  const navMenuLinks = document.querySelectorAll('.nav-menu ul li a');
-  const navbarLinks = document.querySelectorAll('.navbar ul li a');
-  const allNavLinks = [...navMenuLinks, ...navbarLinks];
-
-  allNavLinks.forEach(link => {
+  // Add click event to each navigation link
+  allNavLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
-      event.preventDefault(); // Prevent default action (scrolling)
+      event.preventDefault();  // Prevent the default link behavior
+      const href = this.getAttribute('href'); 
+      const targetElement = document.querySelector(href); 
 
-      const href = this.getAttribute('href');
-      highlightLink(href);
-
-      // Scroll to the target section
-      const targetId = href.substring(1);
-      const targetElement = document.getElementById(targetId);
+       // Smoothly scroll to the section
       if (targetElement) {
         window.scrollTo({
           top: targetElement.offsetTop,
           behavior: 'smooth'
         });
+        highlightLink(href);
       }
     });
   });
 
-  // Initial highlighting based on current scroll position
-  function initialHighlight() {
-    removeHighlight(); // Ensure no links are highlighted on page load
-  }
+  // Scroll event to handle highlighting based on scroll position
+  document.addEventListener("scroll", function () {
+    const scrollPosition = window.scrollY;  // Current scroll position
 
-  initialHighlight();
+    // Hide or show the navbar based on scroll position
+    if (scrollPosition > 100) {
+      navbar.style.top = "10px";  // Show navbar when scrolled down
+    } else {
+      navbar.style.top = "-100px";  // Hide navbar when at the top
+    }
+
+    // Remove highlight when the page is at the very top
+    if (scrollPosition === 0) {
+      removeHighlight();
+      return;
+    }
+
+    // Loop through all sections to find the one currently in view
+    allSections.forEach(function (section) {
+      const sectionTop = section.offsetTop;  // top position of the section
+      const sectionHeight = section.offsetHeight;  // height of the section
+      const sectionId = `#${section.getAttribute("id")}`;  // id of the section
+
+      // check if the scroll position is within the range of the section
+      if (scrollPosition >= sectionTop - 100 && scrollPosition < sectionTop + sectionHeight) {
+        highlightLink(sectionId); 
+      }
+    });
+  });
 });
 
 
@@ -92,18 +98,14 @@ function plusSlides(n) {
 }
 
 
-// function currentSlide(n) {
-//   showSlides((slideIndex = n));
-// }
-
 function currentSlide(element) {
   const dots = document.getElementsByClassName("thumb");
 
   // Loop through the dots and attach click event listeners
   for (let i = 0; i < dots.length; i++) {
     dots[i].addEventListener('click', function (event) {
-      // Get the source of the clicked image
-      const src = event.target.src; // More robust than dots[i]
+
+      const src = event.target.src; 
       const imageName = src.substring(src.lastIndexOf('/') + 1);
       const imageNameWithoutExtension = imageName.replace('.JPG', '').replace('.jpg', ''); // Handle lowercase too
 
@@ -111,7 +113,7 @@ function currentSlide(element) {
       const slideNumber = Number(imageNameWithoutExtension);
       if (!isNaN(slideNumber)) { // Ensure it's a valid number
         element = slideNumber;
-        showSlides(slideIndex = element); // Show the appropriate slide
+        showSlides(slideIndex = element);
       }
     });
   }
@@ -175,7 +177,6 @@ function showThumbnailSlides(slideIndex, direction, set) {
 }
 
 // Cheat Sheet
-
 var acc = document.getElementsByClassName("accordion");
 var i;
 
